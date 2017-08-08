@@ -247,11 +247,11 @@ UndoRedo.ChangeAction.prototype.undo = function(instance, undoneCallback) {
   let data = deepClone(this.changes),
     emptyRowsAtTheEnd = instance.countEmptyRows(true),
     emptyColsAtTheEnd = instance.countEmptyCols(true);
-
   //If sorted map the row indicies to their sorted locations
   if(typeof instance.sortIndex !== "undefined" && instance.sortIndex.length > 0) {
     for(let i = 0; i < data.length; i++) {
-      data[i][0] = instance.sortIndex[data[i][0]][0];
+      let sortIndexEntry = instance.sortIndex.find(function(element) { return element[0] == data[i][0]; });
+      data[i][0] = instance.sortIndex.indexOf(sortIndexEntry);
     }
   }
   for (let i = 0, len = data.length; i < len; i++) {
@@ -283,6 +283,13 @@ UndoRedo.ChangeAction.prototype.undo = function(instance, undoneCallback) {
 UndoRedo.ChangeAction.prototype.redo = function(instance, onFinishCallback) {
   let data = deepClone(this.changes);
 
+  //If sorted map the row indicies to their sorted locations
+  if(typeof instance.sortIndex !== "undefined" && instance.sortIndex.length > 0) {
+    for(let i = 0; i < data.length; i++) {
+      let sortIndexEntry = instance.sortIndex.find(function(element) { return element[0] == data[i][0]; });
+      data[i][0] = instance.sortIndex.indexOf(sortIndexEntry);
+    }
+  }
   for (let i = 0, len = data.length; i < len; i++) {
     data[i].splice(2, 1);
   }
