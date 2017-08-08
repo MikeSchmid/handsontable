@@ -31,6 +31,13 @@ function UndoRedo(instance) {
 
   instance.addHook('afterChange', (changes, source) => {
     if (changes && source !== 'UndoRedo.undo' && source !== 'UndoRedo.redo') {
+      //Clone changes and fix row index when sorting is active
+      changes = deepClone(changes);
+      if(typeof this.instance.sortIndex !== "undefined" && this.instance.sortIndex.length > 0) {
+        for(let i = 0; i < changes.length; i++) {
+          changes[i][0] = this.instance.sortIndex[changes[i][0]][0];
+        }
+      }
       plugin.done(new UndoRedo.ChangeAction(changes));
     }
   });
@@ -241,6 +248,12 @@ UndoRedo.ChangeAction.prototype.undo = function(instance, undoneCallback) {
     emptyRowsAtTheEnd = instance.countEmptyRows(true),
     emptyColsAtTheEnd = instance.countEmptyCols(true);
 
+  //If sorted map the row indicies to their sorted locations
+  if(typeof instance.sortIndex !== "undefined" && instance.sortIndex.length > 0) {
+    for(let i = 0; i < data.length; i++) {
+      data[i][0] = instance.sortIndex[data[i][0]][0];
+    }
+  }
   for (let i = 0, len = data.length; i < len; i++) {
     data[i].splice(3, 1);
   }
